@@ -18,6 +18,9 @@ let totalEnProductos = 0;
 let costoTotal = 0;
 
 
+let datos = []; //aquí se almacenaran los datos de la tabla.
+
+
 let contadorProductos = document.getElementById("contadorProductos");
 let productosTotal = document.getElementById("productosTotal");
 let precioTotal = document.getElementById("precioTotal");
@@ -108,15 +111,30 @@ if (! validarCantidad()){
                 <td>${precio}</td>
              </tr>`;
 
+             let elemento = 
+             `{
+             "id": ${contador},
+             "nombre": "${txtNombre.value}",
+             "cantidad": "${txtNumber.value}",
+             "precio": "${precio}"
+            }`;
+        datos.push( JSON.parse(elemento));
+        localStorage.setItem("datos", JSON.stringify(datos) );    
+
             cuerpoTabla[0].insertAdjacentHTML("beforeend", row)
             contadorProductos.innerText=contador;
             totalEnProductos += parseFloat (txtNumber.value);
             productosTotal.innerText=totalEnProductos;
             costoTotal += precio * parseFloat(txtNumber.value);
             precioTotal.innerText=` ${costoTotal.toFixed(2)}`;
-            localStorage.setItem("contadorProductos",contador);
-            localStorage.setItem("totalEnProductos",totalEnProductos);
-            localStorage.setItem("costoTotal",costoTotal.toFixed(2));
+            let resumen = `{"contadorProductos" : ${contador},
+                            "totalEnProductos" : ${totalEnProductos},
+                            "costoTotal" : ${costoTotal.toFixed(2)}}`;
+            localStorage.setItem("resumen", resumen);
+
+            // localStorage.setItem("contadorProductos",contador);
+            // localStorage.setItem("totalEnProductos",totalEnProductos);
+            // localStorage.setItem("costoTotal",costoTotal.toFixed(2));
             txtNombre.value="";
             txtNumber.value="";
             txtNombre.focus();
@@ -136,23 +154,47 @@ txtNombre.addEventListener("blur", function(event){
 }); //  txtNombre.blur
 
 window.addEventListener("load", function(event){
+    if (localStorage.getItem ("resumen")== null) {
+    let resumen = `{"contadorProductos" : ${contador},
+    "totalEnProductos" : ${totalEnProductos},
+    "costoTotal" : ${costoTotal.toFixed(2)}  }`;
+   localStorage.setItem("resumen", resumen);
+    }
+let res = JSON.parse(localStorage.getItem ("resumen"));
 
-if(localStorage.getItem("contadorProductos")==null){
-localStorage.getItem("contadorProductos", "0");
-}//if
+if (this.localStorage.getItem("datos")!= null){
+    datos = JSON.parse(localStorage.getItem("datos"))
 
-if(localStorage.getItem("totalEnProductos")==null){
-    localStorage.getItem("totalEnProductos", "0");
-}//if
+    datos.forEach(element =>{
+        let row =`<tr>
+        <th>${r.id}</th>
+        <td>${r.nombre}</td>
+        <td>${r.cantidad}</td>
+        <td>${r.precio}</td>
+     </tr>`;
+     cuerpoTabla[0].insertAdjacentHTML("beforeend", row)
+    })
+}
 
-if(localStorage.getItem("costoTotal")==null){
-   localStorage.getItem("costoTotal", "0.0");
-}//if
+// if(localStorage.getItem("contadorProductos")==null){
+// localStorage.getItem("contadorProductos", "0");
+// }//if
 
- contador = parseInt(localStorage.getItem("contadorProductos"));
- totalEnProductos = parseInt(localStorage.getItem("totalEnProductos"));
- costoTotal = parseFloat(localStorage.getItem("costoTotal"));
+// if(localStorage.getItem("totalEnProductos")==null){
+//     localStorage.getItem("totalEnProductos", "0");
+// }//if
 
+// if(localStorage.getItem("costoTotal")==null){
+//    localStorage.getItem("costoTotal", "0.0");
+// }//if
+
+//  contador = parseInt(localStorage.getItem("contadorProductos"));
+//  totalEnProductos = parseInt(localStorage.getItem("totalEnProductos"));
+//  costoTotal = parseFloat(localStorage.getItem("costoTotal"));
+
+contador = res.contadorProductos;
+totalEnProductos = res.totalEnProductos
+costoTotal = res.costoTotal;
 contadorProductos.innerText=contador;
 productosTotal.innerText=totalEnProductos;
 precioTotal.innerText=`$ ${costoTotal}`;
